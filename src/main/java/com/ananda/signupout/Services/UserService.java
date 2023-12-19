@@ -1,5 +1,6 @@
 package com.ananda.signupout.Services;
 
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,9 @@ public class UserService {
             if ((user.getUserName() != "") & (user.getEmail() != "")) {
                 User userByEmail = userRepository.findByEmail(user.getEmail());
                 if (userByEmail == null) {
+                    String strong_salt = BCrypt.gensalt(10);
+                    String encyptedPassword = BCrypt.hashpw(user.getPassword(), strong_salt);
+                    user.setPassword(encyptedPassword);
                     userRepository.save(user);
                     return ResponseEntity.ok("User added");
                 } else {
@@ -38,8 +42,8 @@ public class UserService {
         try {
             User user = userRepository.findByEmail(verifyUser.getEmail());
             if (user != null) {
-                if (user.getPassword().equals(verifyUser.getPassword())) {
-                    StaticInfos.loginStatus=true;
+                if (BCrypt.checkpw(verifyUser.getPassword(), user.getPassword())) {
+                    StaticInfos.loginStatus = true;
                     System.out.println(StaticInfos.loginStatus);
                     return ResponseEntity.ok().body("Logged in Successfully");
                 } else {
