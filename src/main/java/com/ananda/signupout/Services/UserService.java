@@ -25,7 +25,7 @@ public class UserService {
                     String encyptedPassword = BCrypt.hashpw(user.getPassword(), strong_salt);
                     user.setPassword(encyptedPassword);
                     userRepository.save(user);
-                    return ResponseEntity.ok("User added");
+                    return ResponseEntity.ok("Account Created!");
                 } else {
                     return ResponseEntity.ok("User with this email already exists!");
                 }
@@ -45,7 +45,7 @@ public class UserService {
                 if (BCrypt.checkpw(verifyUser.getPassword(), user.getPassword())) {
                     StaticInfos.loginStatus = true;
                     System.out.println(StaticInfos.loginStatus);
-                    return ResponseEntity.ok().body("Logged in Successfully");
+                    return ResponseEntity.ok().body("Logged in!");
                 } else {
                     return ResponseEntity.badRequest().body("Invalid email or password");
                 }
@@ -55,6 +55,19 @@ public class UserService {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Internal Server Error!");
+        }
+    }
+
+    public ResponseEntity<Object> getUserDetailsByEmailService(String email) {
+        try {
+            User userByEmail = userRepository.findByEmail(email);
+            if (userByEmail != null) {
+                return ResponseEntity.ok(userByEmail);
+            } else {
+                return ResponseEntity.badRequest().body("Invalid email");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error!");
         }
     }
 }
