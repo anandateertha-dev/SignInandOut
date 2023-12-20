@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.ananda.signupout.Repository.UserRepository;
 import com.ananda.signupout.StaticInfo.StaticInfos;
+import com.ananda.signupout.model.EmailModel;
+import com.ananda.signupout.model.OtpUserModel;
 import com.ananda.signupout.model.User;
 import com.ananda.signupout.model.VerifyUser;
 
@@ -15,6 +17,15 @@ import com.ananda.signupout.model.VerifyUser;
 public class UserService {
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private EmailModel emailModel;
+
+    @Autowired
+    private OtpUserModel otpUserModel;
 
     public ResponseEntity<Object> userAddService(User user) {
         try {
@@ -70,4 +81,42 @@ public class UserService {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error!");
         }
     }
+
+    public ResponseEntity<String> sendingEmailService(String email, OtpUserModel otpUserModel) {
+        try {
+            User userByEmail = userRepository.findByEmail(email);
+            if (userByEmail != null) {
+                otpUserModel.setEmail(email);
+                int otp = StaticInfos.generateRandom6DigitNumber();
+                otpUserModel.setOtp(otp);
+
+                // Setting the Email by EmailModel
+                emailModel.setRecipient(email);
+                emailModel.setSubject("OTP for Resetting your password");
+                emailModel.setMsgBody("Your OTP for resetting your password is " + Integer.toString(otp)
+                        + ". It is valid only for 1 minute.");
+
+                String response = emailService.sendSimpleMail(emailModel);
+                
+                return ResponseEntity.ok().body(response);
+            } else {
+                return ResponseEntity.badRequest().body("Invalid email");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error!");
+        }
+    }
+
+    public void verifyTheOtpEnteredByUser(String otpFromUser,OtpUserModel otpUserModel)
+    {
+        String otpFromDatabase;
+        System.out.println(otpFromUser);
+        // System.out.println(otpUserModel.getOtp());
+    }
+
+    public ResponseEntity<String> forgotPasswordService(String email, OtpUserModel otpUserModel) {
+        return sendingEmailService(email, otpUserModel);
+    }
+
+
 }
