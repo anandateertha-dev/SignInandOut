@@ -55,7 +55,6 @@ public class UserService {
             if (user != null) {
                 if (BCrypt.checkpw(verifyUser.getPassword(), user.getPassword())) {
                     StaticInfos.loginStatus = true;
-                    System.out.println(StaticInfos.loginStatus);
                     return ResponseEntity.ok().body("Logged in!");
                 } else {
                     return ResponseEntity.badRequest().body("Invalid email or password");
@@ -91,13 +90,14 @@ public class UserService {
                 otpUserModel.setOtp(otp);
 
                 // Setting the Email by EmailModel
+
                 emailModel.setRecipient(email);
                 emailModel.setSubject("OTP for Resetting your password");
                 emailModel.setMsgBody("Your OTP for resetting your password is " + Integer.toString(otp)
                         + ". It is valid only for 1 minute.");
 
                 String response = emailService.sendSimpleMail(emailModel);
-                
+
                 return ResponseEntity.ok().body(response);
             } else {
                 return ResponseEntity.badRequest().body("Invalid email");
@@ -107,16 +107,20 @@ public class UserService {
         }
     }
 
-    public void verifyTheOtpEnteredByUser(String otpFromUser,OtpUserModel otpUserModel)
-    {
-        String otpFromDatabase;
-        System.out.println(otpFromUser);
-        // System.out.println(otpUserModel.getOtp());
+    public ResponseEntity<String> verifyTheOtpEnteredByUser(String otpFromUser) {
+        try {
+            if (otpFromUser.equals(Integer.toString(otpUserModel.getOtp()))) {
+                return ResponseEntity.ok().body("OTP Verified");
+            } else {
+                return ResponseEntity.badRequest().body("Invalid OTP, check your Email to get the 6-digit OTP");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error!");
+        }
     }
 
-    public ResponseEntity<String> forgotPasswordService(String email, OtpUserModel otpUserModel) {
+    public ResponseEntity<String> forgotPasswordService(String email) {
         return sendingEmailService(email, otpUserModel);
     }
-
 
 }

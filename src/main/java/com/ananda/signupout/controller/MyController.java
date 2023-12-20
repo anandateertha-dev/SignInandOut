@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ananda.signupout.Services.UserService;
-import com.ananda.signupout.model.OtpUserModel;
 import com.ananda.signupout.model.User;
 import com.ananda.signupout.model.VerifyUser;
 
@@ -37,13 +36,17 @@ public class MyController {
     }
 
     @PostMapping("forgotpassword")
-    public ResponseEntity<String> forgotPassword(@RequestHeader String email, OtpUserModel otpUserModel) {
-        return service.forgotPasswordService(email, otpUserModel);
+    public ResponseEntity<String> forgotPassword(@RequestHeader String email) {
+        return service.forgotPasswordService(email);
     }
-
-    // @PostMapping("verifyOtp")
-    // public void verifyTheUserOtp(@RequestHeader String otp)
-    // {
-    //     service.verifyTheOtpEnteredByUser(otp);
+    // @PostMapping("forgotpassword")
+    // public ResponseEntity<String> forgotPassword(@RequestHeader String email, OtpUserModel otpUserModel) {
+    //     return service.forgotPasswordService(email, otpUserModel);
     // }
+
+    @PostMapping("verifyOtp")
+    public ResponseEntity<String> verifyTheUserOtp(@RequestHeader String otp)
+    {
+        return service.verifyTheOtpEnteredByUser(otp);
+    }
 }
