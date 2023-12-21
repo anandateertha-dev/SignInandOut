@@ -31,6 +31,12 @@ public class UserService {
     @Autowired
     private ResponseMessage responseMessage;
 
+    public String hashPassword(String password) {
+        String strong_salt = BCrypt.gensalt(10);
+        String encyptedPassword = BCrypt.hashpw(password, strong_salt);
+        return encyptedPassword;
+    }
+
     public ResponseEntity<Object> userAddService(User user) {
         try {
             if ((user.getUserName() != "") & (user.getEmail() != "")) {
@@ -142,6 +148,20 @@ public class UserService {
 
     public ResponseEntity<Object> forgotPasswordService(String email) {
         return sendingEmailService(email, otpUserModel);
+    }
+
+    public ResponseEntity<Object> resetThePasswordService(String passwordFromUser) {
+        try {
+            User user = userRepository.findByEmail(otpUserModel.getEmail());
+            user.setPassword(hashPassword(passwordFromUser));
+            userRepository.save(user);
+
+            responseMessage.setSuccess(true);
+            responseMessage.setMessage("Password Changed Successfully");
+            return ResponseEntity.ok().body(responseMessage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error!");
+        }
     }
 
 }

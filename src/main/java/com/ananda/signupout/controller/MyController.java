@@ -45,4 +45,10 @@ public class MyController {
     {
         return service.verifyTheOtpEnteredByUser(otp);
     }
+
+    @PostMapping("resetpassword")
+    public ResponseEntity<Object> resetThePassword(@RequestHeader String passwordFromUser)
+    {
+        return service.resetThePasswordService(passwordFromUser);
+    }
 }
