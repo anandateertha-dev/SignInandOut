@@ -1,5 +1,9 @@
 package com.ananda.signupout.Services;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +39,14 @@ public class UserService {
         String strong_salt = BCrypt.gensalt(10);
         String encyptedPassword = BCrypt.hashpw(password, strong_salt);
         return encyptedPassword;
+    }
+
+    public void otpExpiry() {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+
+        scheduler.schedule(() -> {
+            otpUserModel.setOtp(0);
+        }, 5, TimeUnit.MINUTES);
     }
 
     public ResponseEntity<Object> userAddService(User user) {
@@ -112,12 +124,13 @@ public class UserService {
                 emailModel.setRecipient(email);
                 emailModel.setSubject("OTP for Resetting your password");
                 emailModel.setMsgBody("Your OTP for resetting your password is " + Integer.toString(otp)
-                        + ". It is valid only for 1 minute.");
+                        + ". It is valid only for 5 minutes.");
 
                 String response = emailService.sendSimpleMail(emailModel);
+                otpExpiry();
                 responseMessage.setSuccess(true);
                 responseMessage.setMessage(response);
-                return ResponseEntity.badRequest().body(responseMessage);
+                return ResponseEntity.ok().body(responseMessage);
             } else {
                 responseMessage.setSuccess(false);
                 responseMessage.setMessage("Invalid Email");
