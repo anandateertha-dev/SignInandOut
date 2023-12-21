@@ -26,7 +26,7 @@ public class MyController {
     }
 
     @GetMapping("verifyuser")
-    public ResponseEntity<String> verifyUser(@RequestBody VerifyUser verifyUser) {
+    public ResponseEntity<Object> verifyUser(@RequestBody VerifyUser verifyUser) {
         return service.verifyingTheUserService(verifyUser);
     }
 
@@ -36,16 +36,12 @@ public class MyController {
     }
 
     @PostMapping("forgotpassword")
-    public ResponseEntity<String> forgotPassword(@RequestHeader String email) {
+    public ResponseEntity<Object> forgotPassword(@RequestHeader String email) {
         return service.forgotPasswordService(email);
     }
-    // @PostMapping("forgotpassword")
-    // public ResponseEntity<String> forgotPassword(@RequestHeader String email, OtpUserModel otpUserModel) {
-    //     return service.forgotPasswordService(email, otpUserModel);
-    // }
 
     @PostMapping("verifyOtp")
-    public ResponseEntity<String> verifyTheUserOtp(@RequestHeader String otp)
+    public ResponseEntity<Object> verifyTheUserOtp(@RequestHeader String otp)
     {
         return service.verifyTheOtpEnteredByUser(otp);
     }
