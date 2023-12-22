@@ -2,6 +2,7 @@ package com.ananda.signupout.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +14,8 @@ import com.ananda.signupout.Services.UserService;
 import com.ananda.signupout.model.User;
 import com.ananda.signupout.model.VerifyUser;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("api")
 public class MyController {
@@ -21,8 +24,8 @@ public class MyController {
     private UserService service;
 
     @PostMapping("adduser")
-    public ResponseEntity<Object> addUser(@RequestBody User user) {
-        return service.userAddService(user);
+    public ResponseEntity<Object> addUser(@Valid @RequestBody User user,BindingResult bindingResult) {
+        return service.userAddService(user,bindingResult);
     }
 
     @GetMapping("verifyuser")

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
 
 import com.ananda.signupout.Repository.UserRepository;
 import com.ananda.signupout.StaticInfo.StaticInfos;
@@ -49,9 +50,14 @@ public class UserService {
         }, 5, TimeUnit.MINUTES);
     }
 
-    public ResponseEntity<Object> userAddService(User user) {
+    public ResponseEntity<Object> userAddService(User user, BindingResult bindingResult) {
         try {
-            if ((user.getUserName() != "") & (user.getEmail() != "")) {
+            if (!bindingResult.hasErrors()) {
+                if (bindingResult.hasFieldErrors()) {
+                    responseMessage.setSuccess(false);
+                    responseMessage.setMessage("Enter valid Email");
+                    return ResponseEntity.badRequest().body(responseMessage);
+                }
                 User userByEmail = userRepository.findByEmail(user.getEmail());
                 if (userByEmail == null) {
                     String strong_salt = BCrypt.gensalt(10);
@@ -62,10 +68,14 @@ public class UserService {
                     responseMessage.setMessage("Account Created!");
                     return ResponseEntity.badRequest().body(responseMessage);
                 } else {
-                    return ResponseEntity.ok("User with this email already exists!");
+                    responseMessage.setSuccess(false);
+                    responseMessage.setMessage("User with this email already exists!");
+                    return ResponseEntity.badRequest().body(responseMessage);
                 }
             } else {
-                return ResponseEntity.badRequest().body("Invalid user name or email");
+                responseMessage.setSuccess(false);
+                responseMessage.setMessage("Invalid user name or email");
+                return ResponseEntity.badRequest().body(responseMessage);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
