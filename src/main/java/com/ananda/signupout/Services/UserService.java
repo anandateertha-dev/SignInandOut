@@ -36,6 +36,9 @@ public class UserService {
     @Autowired
     private ResponseMessage responseMessage;
 
+    @Autowired
+    private AuthService authService;
+
     public String hashPassword(String password) {
         String strong_salt = BCrypt.gensalt(10);
         String encyptedPassword = BCrypt.hashpw(password, strong_salt);
@@ -66,10 +69,12 @@ public class UserService {
                     userRepository.save(user);
                     responseMessage.setSuccess(true);
                     responseMessage.setMessage("Account Created!");
+                    responseMessage.setToken(authService.generateToken(user.getEmail()));
                     return ResponseEntity.badRequest().body(responseMessage);
                 } else {
                     responseMessage.setSuccess(false);
                     responseMessage.setMessage("User with this email already exists!");
+                    responseMessage.setToken(null);
                     return ResponseEntity.badRequest().body(responseMessage);
                 }
             } else {
@@ -91,10 +96,12 @@ public class UserService {
                     StaticInfos.loginStatus = true;
                     responseMessage.setSuccess(true);
                     responseMessage.setMessage("Logged in!");
+                    responseMessage.setToken(authService.generateToken(user.getEmail()));
                     return ResponseEntity.ok().body(responseMessage);
                 } else {
                     responseMessage.setSuccess(false);
                     responseMessage.setMessage("Invalid email or password");
+                    responseMessage.setToken(null);
                     return ResponseEntity.badRequest().body(responseMessage);
                 }
             } else {

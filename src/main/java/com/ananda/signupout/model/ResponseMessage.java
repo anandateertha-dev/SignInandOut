@@ -9,4 +9,5 @@ import lombok.Data;
 public class ResponseMessage {
     private Boolean success;
     private String message;
+    private String token;
 }
