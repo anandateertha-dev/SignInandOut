@@ -115,8 +115,9 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<Object> getUserDetailsByEmailService(String email) {
+    public ResponseEntity<Object> getUserDetailsByEmailService(String token) {
         try {
+            String email=authService.verifyToken(token);
             User userByEmail = userRepository.findByEmail(email);
             if (userByEmail != null) {
                 return ResponseEntity.ok(userByEmail);

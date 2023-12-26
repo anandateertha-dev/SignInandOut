@@ -2,8 +2,8 @@ package com.ananda.signupout.Services;
 
 import org.springframework.stereotype.Service;
 
-// import io.jsonwebtoken.Claims;
-// import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -29,10 +29,14 @@ public class AuthService {
         }
     }
 
-    public void verifyToken()
-    {
-        
+    public String verifyToken(String token) {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        Jws<Claims> claims = Jwts
+                .parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(keyBytes))
+                .build()
+                .parseClaimsJws(token);
+
+        return claims.getBody().getSubject();
     }
-
-
 }
