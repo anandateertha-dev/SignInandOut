@@ -16,6 +16,7 @@ import com.ananda.signupout.StaticInfo.StaticInfos;
 import com.ananda.signupout.model.EmailModel;
 import com.ananda.signupout.model.OtpUserModel;
 import com.ananda.signupout.model.ResponseMessage;
+import com.ananda.signupout.model.TwoFA;
 import com.ananda.signupout.model.User;
 import com.ananda.signupout.model.VerifyUser;
 
@@ -38,6 +39,9 @@ public class UserService {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private TwoFA twoFA;
 
     public String hashPassword(String password) {
         String strong_salt = BCrypt.gensalt(10);
@@ -96,7 +100,8 @@ public class UserService {
                     StaticInfos.loginStatus = true;
                     responseMessage.setSuccess(true);
                     responseMessage.setMessage("Logged in!");
-                    responseMessage.setToken(authService.generateToken(user.getEmail()));
+                    twoFA.setEmail(user.getEmail());
+                    generateOTPforTwoFAService(user);
                     return ResponseEntity.ok().body(responseMessage);
                 } else {
                     responseMessage.setSuccess(false);
@@ -117,7 +122,7 @@ public class UserService {
 
     public ResponseEntity<Object> getUserDetailsByEmailService(String token) {
         try {
-            String email=authService.verifyToken(token);
+            String email = authService.verifyToken(token);
             User userByEmail = userRepository.findByEmail(email);
             if (userByEmail != null) {
                 return ResponseEntity.ok(userByEmail);
@@ -190,6 +195,41 @@ public class UserService {
             responseMessage.setSuccess(true);
             responseMessage.setMessage("Password Changed Successfully");
             return ResponseEntity.ok().body(responseMessage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error!");
+        }
+    }
+
+    public ResponseEntity<Object> generateOTPforTwoFAService(User user) {
+        try {
+            int otpForTwoFA = StaticInfos.generateRandom6DigitNumber();
+            twoFA.setOtp(otpForTwoFA);
+            emailModel.setRecipient(user.getEmail());
+            emailModel.setSubject("OTP for Two-Factor Authentication");
+            emailModel.setMsgBody("Your OTP for Two-Factor Authentication is " + Integer.toString(otpForTwoFA)
+                    + ". It is valid only for 5 minutes.");
+
+            String response = emailService.sendSimpleMail(emailModel);
+            responseMessage.setSuccess(true);
+            responseMessage.setMessage(response);
+            return ResponseEntity.ok().body(responseMessage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error!");
+        }
+    }
+
+    public ResponseEntity<Object> TwoFAService(int otpforTwoFAFromUser) {
+        try {
+            if (twoFA.getOtp() == otpforTwoFAFromUser) {
+                responseMessage.setSuccess(true);
+                responseMessage.setMessage("Login Successfully!");
+                responseMessage.setToken(authService.generateToken(twoFA.getEmail()));
+                return ResponseEntity.ok().body(responseMessage);
+            } else {
+                responseMessage.setSuccess(false);
+                responseMessage.setMessage("Invalid OTP.");
+                return ResponseEntity.badRequest().body(responseMessage);
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error!");
         }

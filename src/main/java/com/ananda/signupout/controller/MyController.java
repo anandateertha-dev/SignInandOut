@@ -24,10 +24,11 @@ public class MyController {
     private UserService service;
 
     @PostMapping("adduser")
-    public ResponseEntity<Object> addUser(@Valid @RequestBody User user,BindingResult bindingResult) {
-        return service.userAddService(user,bindingResult);
+    public ResponseEntity<Object> addUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+        return service.userAddService(user, bindingResult);
     }
 
+    // Log In API
     @GetMapping("verifyuser")
     public ResponseEntity<Object> verifyUser(@RequestBody VerifyUser verifyUser) {
         return service.verifyingTheUserService(verifyUser);
@@ -44,14 +45,17 @@ public class MyController {
     }
 
     @PostMapping("verifyOtp")
-    public ResponseEntity<Object> verifyTheUserOtp(@RequestHeader String otp)
-    {
+    public ResponseEntity<Object> verifyTheUserOtp(@RequestHeader String otp) {
         return service.verifyTheOtpEnteredByUser(otp);
     }
 
     @PostMapping("resetpassword")
-    public ResponseEntity<Object> resetThePassword(@RequestHeader String passwordFromUser)
-    {
+    public ResponseEntity<Object> resetThePassword(@RequestHeader String passwordFromUser) {
         return service.resetThePasswordService(passwordFromUser);
+    }
+
+    @PostMapping("2fa")
+    public ResponseEntity<Object> twofa(@RequestHeader int otpforTwoFAFromUser) {
+        return service.TwoFAService(otpforTwoFAFromUser);
     }
 }
