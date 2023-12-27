@@ -33,9 +33,9 @@ public class MyController {
         return service.verifyingTheUserService(verifyUser);
     }
 
-    @GetMapping("userdetailsbyemail")
-    public ResponseEntity<Object> getUserDetailsByEmail(@RequestHeader String email) {
-        return service.getUserDetailsByEmailService(email);
+    @GetMapping("userdetailsbytoken")
+    public ResponseEntity<Object> getUserDetailsByEmail(@RequestHeader String token) {
+        return service.getUserDetailsByEmailService(token);
     }
 
     @PostMapping("forgotpassword")
