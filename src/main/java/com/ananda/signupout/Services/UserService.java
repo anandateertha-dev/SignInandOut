@@ -49,12 +49,16 @@ public class UserService {
         return encyptedPassword;
     }
 
-    public void otpExpiry() {
+    public void otpExpiry(String otpExpiryState) {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-        scheduler.schedule(() -> {
-            otpUserModel.setOtp(0);
-        }, 5, TimeUnit.MINUTES);
+        if (otpExpiryState.equals("passwordReset")) {
+            scheduler.schedule(() -> {
+                otpUserModel.setOtp(0);
+            }, 5, TimeUnit.MINUTES);
+        } else {
+            twoFA.setOtp(0);
+        }
     }
 
     public ResponseEntity<Object> userAddService(User user, BindingResult bindingResult) {
@@ -150,7 +154,7 @@ public class UserService {
                         + ". It is valid only for 5 minutes.");
 
                 String response = emailService.sendSimpleMail(emailModel);
-                otpExpiry();
+                otpExpiry("passwordReset");
                 responseMessage.setSuccess(true);
                 responseMessage.setMessage(response);
                 return ResponseEntity.ok().body(responseMessage);
