@@ -103,7 +103,7 @@ public class UserService {
                 if (BCrypt.checkpw(verifyUser.getPassword(), user.getPassword())) {
                     StaticInfos.loginStatus = true;
                     responseMessage.setSuccess(true);
-                    responseMessage.setMessage("Logged in!");
+                    responseMessage.setMessage("Logged in Successfully!");
                     twoFA.setEmail(user.getEmail());
                     generateOTPforTwoFAService(user);
                     return ResponseEntity.ok().body(responseMessage);
