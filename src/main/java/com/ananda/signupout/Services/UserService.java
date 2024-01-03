@@ -76,7 +76,7 @@ public class UserService {
                     user.setPassword(encyptedPassword);
                     userRepository.save(user);
                     responseMessage.setSuccess(true);
-                    responseMessage.setMessage("Account Created Successfully!");
+                    responseMessage.setMessage("Account Created Successfully in Database!");
                     responseMessage.setToken(authService.generateToken(user.getEmail()));
                     return ResponseEntity.badRequest().body(responseMessage);
                 } else {
