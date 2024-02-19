@@ -23,7 +23,6 @@ public class MyController {
     @Autowired
     private UserService service;
 
-    //To add a user
     @PostMapping("adduser")
     public ResponseEntity<Object> addUser(@Valid @RequestBody User user, BindingResult bindingResult) {
         return service.userAddService(user, bindingResult);
@@ -35,31 +34,26 @@ public class MyController {
         return service.verifyingTheUserService(verifyUser);
     }
 
-    //Get user details using token
     @GetMapping("userdetailsbytoken")
     public ResponseEntity<Object> getUserDetailsByEmail(@RequestHeader String token) {
         return service.getUserDetailsByEmailService(token);
     }
 
-    //Forgot password
     @PostMapping("forgotpassword")
     public ResponseEntity<Object> forgotPassword(@RequestHeader String email) {
         return service.forgotPasswordService(email);
     }
 
-    //To verify otp
     @PostMapping("verifyOtp")
     public ResponseEntity<Object> verifyTheUserOtp(@RequestHeader String otp) {
         return service.verifyTheOtpEnteredByUser(otp);
     }
 
-    //To reset password
     @PostMapping("resetpassword")
     public ResponseEntity<Object> resetThePassword(@RequestHeader String passwordFromUser) {
         return service.resetThePasswordService(passwordFromUser);
     }
 
-    //Two factor authentication
     @PostMapping("2fa")
     public ResponseEntity<Object> twofa(@RequestHeader int otpforTwoFAFromUser) {
         return service.TwoFAService(otpforTwoFAFromUser);
